@@ -14,3 +14,5 @@
 30.04.2024	13:30:15	39e82d09-b1a8-4322-8163-e1ed44f73171	PATCH	/api/signup	405	PATCH not supported on this endpoint.
 30.04.2024	13:48:44	006c6fb7-4ff7-45b3-bf17-e0037d194053	POST	/api/login	403	Wrong password
 30.04.2024	13:49:13	799ee487-706d-404a-9349-81efb18edb6e	POST	/api/login	403	Authentication failed
+07.05.2024	14:41:36	e1a11dfe-d23a-4581-9baa-64c67fae6517	GET	/api/products/14	undefined	no such table: products
+08.05.2024	13:56:15	750264e8-68f5-4dcb-8e68-c683cd21d5c3	GET	/api/orderid/2	404	Not found!

@@ -1,40 +1,71 @@
 import express from "express";
 const router = express.Router();
+import { ReqError } from "../middleware/errorHandler.mjs";
+import jwtValidator from "../middleware/jwtValidator.mjs";
+import {
+  getOrders,
+  getOrder,
+  addOrder,
+  deleteOrder,
+} from "../database/dbQueries.mjs";
 
-router.all("/", (req, res) => {
-  if (req.method === "GET") {
+// GET all orders
+router.get("/", jwtValidator, (req, res) => {
+  const orders = getOrders();
+  res.status(200).json({
+    data: orders,
+  });
+});
+
+// POST a new order
+router.post("/", (req, res) => {
+  const { customer_email, product } = req.body;
+  if (!customer_email || !product) {
+    next(new ReqError(400, "Missing required fields: customer_email, product"));
+    return;
+  }
+
+  const newOrder = addOrder(customer_email, product);
+  res.status(201).json({
+    message: "Order added successfully",
+    addedOrder: newOrder,
+  });
+});
+
+// GET order details by orderId
+router.get("/:orderId", (req, res, next) => {
+  const { orderId } = req.params;
+  const order = getOrder(orderId);
+  if (order) {
     res.status(200).json({
-      message: "Order overview will come here",
-    });
-  } else if (req.method === "POST") {
-    res.status(200).json({
-      message: "Use this to post new orders.",
+      orderId: orderId,
+      message: `Successfully fetched data for order ${orderId}`,
+      data: order,
     });
   } else {
-    const error = new Error(
-      `${req.method} not supported on this endpoint. Please refer to the API documentation.`
+    next(
+      new ReqError(404, `Cannot fetch: Order with id ${orderId} doesn't exist.`)
     );
-    error.status = 405;
-    throw error;
   }
 });
 
-router.all("/:orderId", (req, res) => {
+// DELETE an order by orderId
+router.delete("/:orderId", (req, res, next) => {
   const { orderId } = req.params;
-  if (req.method === "GET") {
+  const order = getOrder(orderId);
+  if (order) {
+    deleteOrder(orderId);
     res.status(200).json({
-      message: `Get information about order with id ${orderId}`,
-    });
-  } else if (req.method === "DELETE") {
-    res.status(200).json({
-      message: `Delete order with id ${orderId}`,
+      orderId: orderId,
+      message: `Successfully deleted order with id ${orderId}`,
     });
   } else {
-    const error = new Error(
-      `${req.method} not supported on this endpoint. Please refer to the API documentation.`
+    next(
+      new ReqError(
+        404,
+        `Cannot delete: Order with id ${orderId} doesn't exist.`
+      )
     );
-    error.status = 405;
-    throw error;
   }
 });
 
